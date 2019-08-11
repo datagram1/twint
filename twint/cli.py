@@ -8,13 +8,14 @@ https://github.com/twintproject/twint/wiki
 Licensed under MIT License
 Copyright (c) 2018 The Twint Project  
 '''
-import sys
-import os
 import argparse
+import os
+import sys
 
-from . import run
 from . import config
+from . import run
 from . import storage
+
 
 def error(_error, message):
     """ Print errors to stdout
