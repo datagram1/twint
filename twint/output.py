@@ -4,7 +4,7 @@ from . import format, get
 from .tweet import Tweet
 from .user import User
 from .storage import db, elasticsearch, write, panda
-
+from twint import dbmysql
 import logging as logme
 
 follows_list = []
@@ -152,8 +152,11 @@ async def Users(u, config, conn):
     user = User(u)
     output = format.User(config.Format, user)
 
-    if config.Database:
-        logme.debug(__name__+':User:Database')
+    if config.mysqldatabase:
+        # logme.debug(__name__+':User:Database')
+        dbmysql.user(conn, config.Username, config.Followers, user)
+    elif config.Database:
+        # logme.debug(__name__+':User:Database')
         db.user(conn, config, user)
 
     if config.Elasticsearch:
@@ -178,8 +181,11 @@ async def Username(username, config, conn):
     global follows_list
     follow_var = config.Following*"following" + config.Followers*"followers"
 
-    if config.Database:
-        logme.debug(__name__+':Username:Database')
+    if config.mysqldatabase:
+        # logme.debug(__name__+':User:Database')
+        dbmysql.follow(conn, config.Username, config.Followers, username)
+    elif config.Database:
+        #logme.debug(__name__+':Username:Database')
         db.follow(conn, config.Username, config.Followers, username)
 
     if config.Elasticsearch:
