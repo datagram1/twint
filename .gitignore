@@ -108,3 +108,5 @@ ENV/
 *.csv
 *.json
 *.txt
+/the144
+/startmysql.py
