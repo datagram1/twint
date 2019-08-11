@@ -29,6 +29,7 @@ def init(hostname, mysqldatabase, db_user, db_pwd):
                                db=mysqldatabase,  # name of the data base
                                charset='utf8mb4',
                                use_unicode=True)
+
         cursor = conn.cursor()
         # here would be the code for creating the tables if them don't exist
         return conn
@@ -126,3 +127,26 @@ def tweets(conn, Tweet, config):
         conn.commit()
     except pymysql.IntegrityError:
         pass
+
+
+def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _type):
+    """ usersfromdatabase option
+    """
+    con = pymysql.connect(hostname,
+                          db_user,
+                          db_pwd,
+                          mysql_database,
+                          charset='utf8mb4',
+                          cursorclass=pymysql.cursors.DictCursor)
+
+    with con:
+        cur = con.cursor()
+        cur.execute(query)
+        userlist = cur.fetchall()
+
+        if _type == "search":
+            un = ""
+        for user in userlist:
+            un += "%20OR%20from%3A" + user
+        return un[15:]
+    return userlist

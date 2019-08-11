@@ -77,3 +77,4 @@ class Config:
     hostname = ""
     dbuser = ""
     dbpwd = ""
+    usersfromdatabase = ""

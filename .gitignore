@@ -112,7 +112,7 @@ ENV/
 /the144
 /startmysql.py
 =======
-mysqlstart.py
+test.py
 twint/storage/.DS_Store
 twint/.DS_Store
 .DS_Store

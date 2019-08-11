@@ -12,9 +12,13 @@ import argparse
 import os
 import sys
 
+import pymysql
+import pymysql.cursors
+
 from . import config
 from . import run
 from . import storage
+from . import dbmysql
 
 
 def error(_error, message):
@@ -131,6 +135,7 @@ def initialize(args):
     c.hostname = args.hostname
     c.DB_user = args.dbuser
     c.DB_pwd = args.dbpwd
+    c.usersfromdatabase = args.usersfromdatabase
 
     return c
 
@@ -233,11 +238,10 @@ def options():
     ap.add_argument("--hostname", help="e.g. 192.168.0.1 or localhost MySQLServer name/address")
     ap.add_argument("--dbuser", help="e.g. username or root / MySQLServer valid logon")
     ap.add_argument("--dbpwd", help="e.g. password or 123 / MySQLServer valid password")
+    ap.add_argument("--usersfromdatabase", help="e.g. 'select user from follow_names;' Single Column ONLY")
 
     args = ap.parse_args()
-    c.hostname = args.hostname
-    c.DB_user = args.dbuser
-    c.DB_pwd = args.dbpwd
+
     return args
 
 
@@ -255,52 +259,73 @@ def main():
     if args.userlist:
         c.Query = loadUserList(args.userlist, "search")
 
+    if args.userlistfromdatabase:
+        c.Query = dbmysql.loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase
+                                                , args.usersfromdatabase, "search")
+
     if args.pandas_clean:
         storage.panda.clean()
 
     if args.favorites:
         if args.userlist:
             _userlist = loadUserList(args.userlist, "favorites")
-            for _user in _userlist:
-                args.username = _user
-                c = initialize(args)
-                run.Favorites(c)
+        elif args.usersfromdatabase:
+            _userlist = loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase,
+                                              args.usersfromdatabase, "favorites")
+        for _user in _userlist:
+            args.username = _user
+            c = initialize(args)
+            run.Favorites(c)
         else:
             run.Favorites(c)
+
     elif args.following:
         if args.userlist:
             _userlist = loadUserList(args.userlist, "following")
-            for _user in _userlist:
-                args.username = _user
-                c = initialize(args)
-                run.Following(c)
+        elif args.usersfromdatabase:
+            _userlist = loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase,
+                                              args.usersfromdatabase, "following")
+        for _user in _userlist:
+            args.username = _user
+            c = initialize(args)
+            run.Following(c)
         else:
             run.Following(c)
+
     elif args.followers:
         if args.userlist:
             _userlist = loadUserList(args.userlist, "followers")
-            for _user in _userlist:
-                args.username = _user
-                c = initialize(args)
-                run.Followers(c)
+        elif args.usersfromdatabase:
+            _userlist = loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase,
+                                              args.usersfromdatabase, "followers")
+        for _user in _userlist:
+            args.username = _user
+            c = initialize(args)
+            run.Followers(c)
         else:
             run.Followers(c)
     elif args.retweets or args.profile_full:
         if args.userlist:
             _userlist = loadUserList(args.userlist, "profile")
-            for _user in _userlist:
-                args.username = _user
-                c = initialize(args)
-                run.Profile(c)
+        elif args.usersfromdatabase:
+            _userlist = loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase,
+                                              args.usersfromdatabase, "profile")
+        for _user in _userlist:
+            args.username = _user
+            c = initialize(args)
+            run.Profile(c)
         else:
             run.Profile(c)
     elif args.user_full:
         if args.userlist:
             _userlist = loadUserList(args.userlist, "userlist")
-            for _user in _userlist:
-                args.username = _user
-                c = initialize(args)
-                run.Lookup(c)
+        elif args.usersfromdatabase:
+            _userlist = loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase,
+                                              args.usersfromdatabase, "userlist")
+        for _user in _userlist:
+            args.username = _user
+            c = initialize(args)
+            run.Lookup(c)
         else:
             run.Lookup(c)
     else:
