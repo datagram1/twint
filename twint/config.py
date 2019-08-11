@@ -73,3 +73,7 @@ class Config:
     Source = None
     Members_list = None
     Filter_retweets = False
+    mysqldatabase = ""
+    hostname = ""
+    dbuser = ""
+    dbpwd = ""

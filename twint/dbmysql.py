@@ -3,9 +3,10 @@ from datetime import datetime
 
 import pymysql
 import pymysql.cursors
-
+import logging as logme
 
 def Conn(hostname,mysqldatabase,db_user,db_pwd):
+    logme.debug(__name__ + ':Conn')
     if mysqldatabase:
         print("[+] Inserting into MySqlDatabase: " + str(mysqldatabase))
         conn = init(hostname,mysqldatabase,db_user,db_pwd)
@@ -18,6 +19,7 @@ def Conn(hostname,mysqldatabase,db_user,db_pwd):
     return conn
 
 def init(hostname,mysqldatabase,db_user,db_pwd):
+    logme.debug(__name__ + ':init')
     try:
         conn = pymysql.connect(host=hostname,    # your host, usually localhost
                      user=db_user,         # your username
@@ -29,9 +31,10 @@ def init(hostname,mysqldatabase,db_user,db_pwd):
        #here would be the code for creating the tables if them don't exist
         return conn
     except Exception as e:
-        return str(e)
+        logme.critical(__name__ + ':dbmysql:' + str(e))
 
 def fTable(Followers):
+    logme.debug(__name__ + ':fTable')
     if Followers:
         table = "followers_names"
     else:
@@ -40,6 +43,7 @@ def fTable(Followers):
     return table
 
 def uTable(Followers):
+    logme.debug(__name__ + ':uTable')
     if Followers:
         table = "followers"
     else:
@@ -48,6 +52,7 @@ def uTable(Followers):
     return table
 
 def follow(conn, Username, Followers, User):
+    logme.debug(__name__ + ':follow')
     try:
         date_time = str(datetime.now())
         cursor = conn.cursor()
