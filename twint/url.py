@@ -109,6 +109,24 @@ async def Search(config, init):
         q += " filter:media"
     if config.Replies:
         q += " filter:replies"
+    if config.Native_retweets:
+        q += " filter:nativeretweets"
+    if config.Min_likes:
+        q += f" min_faves:{config.Min_likes}"
+    if config.Min_retweets:
+        q += f" min_retweets:{config.Min_retweets}"
+    if config.Min_replies:
+        q += f" min_replies:{config.Min_replies}"
+    if config.Links == "include":
+        q += " filter:links"
+    elif config.Links == "exclude":
+        q += " exclude:links"
+    if config.Source:
+        q += f" source:\"{config.Source}\""
+    if config.Members_list:
+        q += f" list:{config.Members_list}"
+    if config.Filter_retweets:
+        q += f" exclude:nativeretweets exclude:retweets"
     if config.Custom_query:
         q = config.Custom_query
 

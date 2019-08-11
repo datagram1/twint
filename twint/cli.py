@@ -25,7 +25,7 @@ def error(_error, message):
 def check(args):
     """ Error checking
     """
-    if args.username is not None or args.userlist:
+    if args.username is not None or args.userlist or args.members_list:
         if args.verified:
             error("Contradicting Args",
                   "Please use --verified in combination with -s.")
@@ -114,6 +114,15 @@ def initialize(args):
     c.Custom_query = args.custom_query
     c.Popular_tweets =  args.popular_tweets
     c.Skip_certs = args.skip_certs
+    c.Hide_output = args.hide_output
+    c.Native_retweets = args.native_retweets
+    c.Min_likes = args.min_likes
+    c.Min_retweets = args.min_retweets
+    c.Min_replies = args.min_replies
+    c.Links = args.links
+    c.Source = args.source
+    c.Members_list = args.members_list
+    c.Filter_retweets = args.filter_retweets
     return c
 
 def options():
@@ -198,6 +207,16 @@ def options():
     ap.add_argument("-cq", "--custom-query", help="Custom search query.")
     ap.add_argument("-pt", "--popular-tweets", help="Scrape popular tweets instead of recent ones.", action="store_true")
     ap.add_argument("-sc", "--skip-certs", help="Skip certs verification, useful for SSC.", action="store_false")
+    ap.add_argument("-ho", "--hide-output", help="Hide output, no tweets will be displayed.", action="store_true")
+    ap.add_argument("-nr", "--native-retweets", help="Filter the results for retweets only.", action="store_true")
+    ap.add_argument("--min-likes", help="Filter the tweets by minimum number of likes.")
+    ap.add_argument("--min-retweets", help="Filter the tweets by minimum number of retweets.")
+    ap.add_argument("--min-replies", help="Filter the tweets by minimum number of replies.")
+    ap.add_argument("--links", help="Include or exclude tweets containing one o more links. If not specified"+
+                    " you will get both tweets that might contain links or not.")
+    ap.add_argument("--source", help="Filter the tweets for specific source client.")
+    ap.add_argument("--members-list", help="Filter the tweets sent by users in a given list.")
+    ap.add_argument("-fr", "--filter-retweets", help="Exclude retweets from the results.", action="store_true")
     args = ap.parse_args()
 
     return args

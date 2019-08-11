@@ -65,3 +65,11 @@ class Config:
     Custom_query = ""
     Popular_tweets = False
     Skip_certs = False
+    Native_retweets = False
+    Min_likes = 0
+    Min_retweets = 0
+    Min_replies = 0
+    Links = None
+    Source = None
+    Members_list = None
+    Filter_retweets = False
