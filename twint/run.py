@@ -1,7 +1,7 @@
 import sys, os
 from asyncio import get_event_loop, TimeoutError, ensure_future
 from datetime import timedelta, datetime
-
+from twint import dbmysql
 from . import datelock, feed, get, output, verbose, storage
 from .storage import db
 #from . import _logme
@@ -23,7 +23,10 @@ class Twint:
         self.count = 0
         self.user_agent = ""
         self.config = config
-        self.conn = db.Conn(config.Database)
+        if config.hostname:
+            self.conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd)
+        else:
+            self.conn = db.Conn(config.Database)
         self.d = datelock.Set(self.config.Until, self.config.Since)
         verbose.Elastic(config.Elasticsearch)
 

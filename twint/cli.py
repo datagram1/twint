@@ -8,13 +8,14 @@ https://github.com/twintproject/twint/wiki
 Licensed under MIT License
 Copyright (c) 2018 The Twint Project  
 '''
-import sys
-import os
 import argparse
+import os
+import sys
 
-from . import run
 from . import config
+from . import run
 from . import storage
+
 
 def error(_error, message):
     """ Print errors to stdout
@@ -123,6 +124,11 @@ def initialize(args):
     c.Source = args.source
     c.Members_list = args.members_list
     c.Filter_retweets = args.filter_retweets
+    c.mysqldatabase = args.mysqldatabase
+    c.hostname = args.hostname
+    c.DB_user = args.dbuser
+    c.DB_pwd = args.dbpwd
+    
     return c
 
 def options():
@@ -218,7 +224,15 @@ def options():
     ap.add_argument("--members-list", help="Filter the tweets sent by users in a given list.")
     ap.add_argument("-fr", "--filter-retweets", help="Exclude retweets from the results.", action="store_true")
     args = ap.parse_args()
+    ap.add_argument("--mysqldatabase", help="e.g. twintdb  MySQLServer databasename")
+    ap.add_argument("--hostname", help="e.g. 192.168.0.1 or localhost MySQLServer name/address")
+    ap.add_argument("--dbuser", help="e.g. username or root / MySQLServer valid logon")
+    ap.add_argument("--dbpwd", help="e.g. password or 123 / MySQLServer valid password")
 
+    args = ap.parse_args()
+    c.hostname = args.hostname
+    c.DB_user = args.dbuser
+    c.DB_pwd = args.dbpwd
     return args
 
 def main():
