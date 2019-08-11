@@ -1,3 +1,5 @@
+CREATE DATABASE `twintmysql` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
 CREATE TABLE `followers` (
   `id` bigint(30) NOT NULL,
   `name` mediumtext,

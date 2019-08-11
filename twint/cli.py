@@ -23,6 +23,7 @@ def error(_error, message):
     print("[-] {}: {}".format(_error, message))
     sys.exit(0)
 
+
 def check(args):
     """ Error checking
     """
@@ -48,6 +49,7 @@ def check(args):
         elif args.json:
             error("Error", "Please specify an output file (Example: -o file.json).")
 
+
 def loadUserList(ul, _type):
     """ Concatenate users
     """
@@ -61,6 +63,7 @@ def loadUserList(ul, _type):
             un += "%20OR%20from%3A" + user
         return un[15:]
     return userlist
+
 
 def initialize(args):
     """ Set default values for config from args
@@ -113,7 +116,7 @@ def initialize(args):
     c.Proxy_type = args.proxy_type
     c.Retweets = args.retweets
     c.Custom_query = args.custom_query
-    c.Popular_tweets =  args.popular_tweets
+    c.Popular_tweets = args.popular_tweets
     c.Skip_certs = args.skip_certs
     c.Hide_output = args.hide_output
     c.Native_retweets = args.native_retweets
@@ -128,8 +131,9 @@ def initialize(args):
     c.hostname = args.hostname
     c.DB_user = args.dbuser
     c.DB_pwd = args.dbpwd
-    
+
     return c
+
 
 def options():
     """ Parse arguments
@@ -211,15 +215,16 @@ def options():
     ap.add_argument("-pc", "--pandas-clean",
                     help="Automatically clean Pandas dataframe at every scrape.")
     ap.add_argument("-cq", "--custom-query", help="Custom search query.")
-    ap.add_argument("-pt", "--popular-tweets", help="Scrape popular tweets instead of recent ones.", action="store_true")
+    ap.add_argument("-pt", "--popular-tweets", help="Scrape popular tweets instead of recent ones.",
+                    action="store_true")
     ap.add_argument("-sc", "--skip-certs", help="Skip certs verification, useful for SSC.", action="store_false")
     ap.add_argument("-ho", "--hide-output", help="Hide output, no tweets will be displayed.", action="store_true")
     ap.add_argument("-nr", "--native-retweets", help="Filter the results for retweets only.", action="store_true")
     ap.add_argument("--min-likes", help="Filter the tweets by minimum number of likes.")
     ap.add_argument("--min-retweets", help="Filter the tweets by minimum number of retweets.")
     ap.add_argument("--min-replies", help="Filter the tweets by minimum number of replies.")
-    ap.add_argument("--links", help="Include or exclude tweets containing one o more links. If not specified"+
-                    " you will get both tweets that might contain links or not.")
+    ap.add_argument("--links", help="Include or exclude tweets containing one o more links. If not specified" +
+                                    " you will get both tweets that might contain links or not.")
     ap.add_argument("--source", help="Filter the tweets for specific source client.")
     ap.add_argument("--members-list", help="Filter the tweets sent by users in a given list.")
     ap.add_argument("-fr", "--filter-retweets", help="Exclude retweets from the results.", action="store_true")
@@ -234,6 +239,7 @@ def options():
     c.DB_user = args.dbuser
     c.DB_pwd = args.dbpwd
     return args
+
 
 def main():
     """ Main
@@ -299,6 +305,7 @@ def main():
             run.Lookup(c)
     else:
         run.Search(c)
+
 
 def run_as_command():
     version = ".".join(str(v) for v in sys.version_info[:2])
