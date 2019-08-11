@@ -2,7 +2,7 @@ import sys, os
 from asyncio import get_event_loop, TimeoutError, ensure_future
 from datetime import timedelta, datetime
 from twint import dbmysql
-from . import datelock, feed, get, output, verbose, storage
+from . import datelock, feed, get, output, verbose, storage,cli
 from .storage import db
 #from . import _logme
 #
