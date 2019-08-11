@@ -132,21 +132,24 @@ def tweets(conn, Tweet, config):
 def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _type):
     """ usersfromdatabase option
     """
-    con = pymysql.connect(hostname,
+    try:
+        con = pymysql.connect(hostname,
                           db_user,
                           db_pwd,
                           mysql_database,
-                          charset='utf8mb4',
-                          cursorclass=pymysql.cursors.DictCursor)
+                          charset='utf8mb4')
 
-    with con:
-        cur = con.cursor()
-        cur.execute(query)
-        userlist = cur.fetchall()
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+            rows = cur.fetchall()
 
-        if _type == "search":
-            un = ""
-        for user in userlist:
-            un += "%20OR%20from%3A" + user
-        return un[15:]
-    return userlist
+            if _type == "search":
+                un = ""
+                for row in rows:
+                    un += "%20OR%20from%3A" + row[0]
+                return un[15:]
+            userlist=rows
+        return userlist
+    except Exception as e:
+        logme.critical(__name__ + ':dbmysql:' + str(e))

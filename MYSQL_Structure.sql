@@ -85,12 +85,12 @@ CREATE TABLE `tweets` (
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_str` varchar(40) NOT NULL,
-  `name` text,
+  `name` text CHARACTER SET utf8mb4,
   `user` varchar(50) DEFAULT NULL,
   `private` int(11) DEFAULT '0',
   `verified` int(11) DEFAULT '0',
-  `bio` text,
-  `location` text,
+  `bio` text CHARACTER SET utf8mb4,
+  `location` text CHARACTER SET utf8mb4,
   `url` text,
   `joined` datetime DEFAULT NULL,
   `tweets` int(11) DEFAULT NULL,
@@ -98,20 +98,20 @@ CREATE TABLE `users` (
   `followers` int(11) DEFAULT NULL,
   `likes` int(11) DEFAULT NULL,
   `media` int(11) DEFAULT NULL,
-  `avatar` varchar(200) DEFAULT 'null',
+  `avatar` varchar(300) DEFAULT 'null',
   `time_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `relevance` decimal(30,20) DEFAULT NULL,
   `keep` bit(1) DEFAULT b'0',
   `suspended` bit(1) DEFAULT b'0',
   `blocked` bit(1) DEFAULT b'0',
   `unfollow` bit(1) DEFAULT b'0',
-  `username` varchar(50) NOT NULL,
+  `username` varchar(50) DEFAULT NULL,
   `doesntexist` bit(1) DEFAULT b'0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`),
   UNIQUE KEY `id_str_UNIQUE` (`id_str`),
   KEY `user` (`user`) USING BTREE,
   FULLTEXT KEY `bio` (`bio`)
-) ENGINE=InnoDB AUTO_INCREMENT=722253 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=787914 DEFAULT CHARSET=latin1;
+
 

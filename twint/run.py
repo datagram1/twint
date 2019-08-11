@@ -26,8 +26,9 @@ class Twint:
         self.config = config
         if config.hostname:
             self.conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd)
-        else:
+        elif config.Database:
             self.conn = db.Conn(config.Database)
+
         self.d = datelock.Set(self.config.Until, self.config.Since)
         verbose.Elastic(config.Elasticsearch)
 
@@ -271,14 +272,18 @@ def Following(config):
         output.clean_follow_list()
 
 
-
 def Lookup(config):
     logme.debug(__name__ + ':Lookup')
     if config.User_id is not None:
         logme.debug(__name__ + ':Twint:Lookup:user_id')
         config.Username = get_event_loop().run_until_complete(get.Username(config.User_id))
     url = f"https://twitter.com/{config.Username}?lang=en"
-    get_event_loop().run_until_complete(get.User(url, config, db.Conn(config.Database)))
+    if config.Database:
+        get_event_loop().run_until_complete(get.User(url, config, db.Conn(config.Database)))
+    if config.mysqldatabase:
+        get_event_loop().run_until_complete(get.User(url, config, dbmysql.Conn(config.hostname
+                                                                               , config.mysqldatabase, config.DB_user,
+                                                                               config.DB_pwd)))
     if config.Pandas_au:
         storage.panda._autoget("user")
 

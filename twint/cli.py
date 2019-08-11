@@ -245,21 +245,24 @@ def options():
     return args
 
 
-def main():
+def main(c):
     """ Main
     """
-    args = options()
-    check(args)
+    if __debug__:
+        args = c
+        print("Debug ON")
+    else:
+        args = options()
+        check(args)
+        c = initialize(args)
 
     if args.pandas_clean:
         storage.panda.clean()
 
-    c = initialize(args)
-
     if args.userlist:
         c.Query = loadUserList(args.userlist, "search")
 
-    if args.userlistfromdatabase:
+    if args.usersfromdatabase:
         c.Query = dbmysql.loadusersfromdatabase(args.hostname, args.dbuser, args.dbpwd, args.mysqldatabase
                                                 , args.usersfromdatabase, "search")
 
@@ -312,8 +315,12 @@ def main():
                                               args.usersfromdatabase, "profile")
         for _user in _userlist:
             args.username = _user
-            c = initialize(args)
-            run.Profile(c)
+            if __debug__:
+                print(str(_userlist))
+                run.Profile(c)
+            else:
+                c = initialize(args)
+                run.Profile(c)
         else:
             run.Profile(c)
     elif args.user_full:
