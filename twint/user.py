@@ -1,13 +1,15 @@
 import logging as logme
 
+
 class user:
     type = "user"
 
     def __init__(self):
         pass
 
+
 def inf(ur, _type):
-    logme.debug(__name__+':inf')
+    logme.debug(__name__ + ':inf')
     try:
         group = ur.find("div", "user-actions btn-group not-following ")
         if group == None:
@@ -32,8 +34,9 @@ def inf(ur, _type):
 
     return ret
 
+
 def card(ur, _type):
-    logme.debug(__name__+':card')
+    logme.debug(__name__ + ':card')
     if _type == "bio":
         try:
             ret = ur.find("p", "ProfileHeaderCard-bio u-dir").text.replace("\n", " ")
@@ -53,17 +56,19 @@ def card(ur, _type):
 
     return ret
 
+
 def join(ur):
-    logme.debug(__name__+':join')
+    logme.debug(__name__ + ':join')
     jd = ur.find("span", "ProfileHeaderCard-joinDateText js-tooltip u-dir")["title"]
     return jd.split(" - ")
 
+
 def convertToInt(x):
-    logme.debug(__name__+':contertToInt')
+    logme.debug(__name__ + ':contertToInt')
     multDict = {
-        "k" : 1000,
-        "m" : 1000000,
-        "b" : 1000000000,
+        "k": 1000,
+        "m": 1000000,
+        "b": 1000000000,
     }
     try:
         if ',' in x:
@@ -82,28 +87,31 @@ def convertToInt(x):
 
     return 0
 
+
 def stat(ur, _type):
-    logme.debug(__name__+':stat')
+    logme.debug(__name__ + ':stat')
     _class = f"ProfileNav-item ProfileNav-item--{_type}"
     stat = ur.find("li", _class)
-    try :
+    try:
         r = stat.find("span", "ProfileNav-value")["data-count"]
     except AttributeError:
         r = "0"
     return int(r)
 
+
 def media(ur):
-    logme.debug(__name__+':media')
+    logme.debug(__name__ + ':media')
     try:
-      media_count = ur.find("a", "PhotoRail-headingWithCount js-nav").text.strip().split(" ")[0]
-      media_count = convertToInt(media_count)
+        media_count = ur.find("a", "PhotoRail-headingWithCount js-nav").text.strip().split(" ")[0]
+        media_count = convertToInt(media_count)
     except:
-      media_count = 0
+        media_count = 0
 
     return media_count
 
+
 def verified(ur):
-    logme.debug(__name__+':verified')
+    logme.debug(__name__ + ':verified')
     try:
         is_verified = ur.find("span", "ProfileHeaderCard-badges").text
         if "Verified account" in is_verified:
@@ -115,8 +123,9 @@ def verified(ur):
 
     return is_verified
 
+
 def User(ur):
-    logme.debug(__name__+':User')
+    logme.debug(__name__ + ':User')
     u = user()
     for img in ur.findAll("img", "Emoji Emoji--forText"):
         img.replaceWith(img["alt"])
@@ -136,5 +145,5 @@ def User(ur):
     u.is_private = inf(ur, "private")
     u.is_verified = verified(ur)
     u.avatar = ur.find("img", "ProfileAvatar-image")["src"]
-    u.background_image = ur.find('div',{'class':'ProfileCanopy-headerBg'}).find('img').get('src')
+    u.background_image = ur.find('div', {'class': 'ProfileCanopy-headerBg'}).find('img').get('src')
     return u

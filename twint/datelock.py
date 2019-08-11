@@ -2,13 +2,15 @@ import datetime
 
 import logging as logme
 
+
 class Datelock:
     _until = None
     _since = None
     _since_def_user = None
 
+
 def Set(Until, Since):
-    logme.debug(__name__+':Set')
+    logme.debug(__name__ + ':Set')
     d = Datelock()
 
     if Until:
