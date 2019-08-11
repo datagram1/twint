@@ -84,6 +84,8 @@ A few simple examples to help you understand the basics:
 - `twint -u username --retweets` - Use a quick method to gather the last 900 Tweets (that includes retweets) from a user's profile.
 - `twint -u username --resume resume_file.txt` - Resume a search starting from the last saved scroll-id.
 
+- `twint -u username --database twintmysql --hostname 192.168.0.1 --dbuser root --dbpwd password` - Save to MySQL database.
+
 More detail about the commands and options are located in the [wiki](https://github.com/twintproject/twint/wiki/Commands)
 
 ## Module Example
@@ -126,6 +128,7 @@ twint.run.Search(c)
 - CSV;
 - JSON;
 - SQLite;
+- MySQL;
 - Elasticsearch.
 
 ## Elasticsearch Setup
