@@ -108,3 +108,7 @@ ENV/
 *.csv
 *.json
 *.txt
+mysqlstart.py
+twint/storage/.DS_Store
+twint/.DS_Store
+.DS_Store
