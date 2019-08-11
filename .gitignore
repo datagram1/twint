@@ -108,5 +108,11 @@ ENV/
 *.csv
 *.json
 *.txt
+<<<<<<< HEAD
 /the144
 /startmysql.py
+=======
+mysqlstart.py
+twint/storage/.DS_Store
+twint/.DS_Store
+.DS_Store
