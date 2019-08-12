@@ -78,3 +78,4 @@ class Config:
     dbuser = ""
     dbpwd = ""
     usersfromdatabase = ""
+    thread_qty = 1

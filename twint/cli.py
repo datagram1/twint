@@ -239,7 +239,7 @@ def options():
     ap.add_argument("--dbuser", help="e.g. username or root / MySQLServer valid logon")
     ap.add_argument("--dbpwd", help="e.g. password or 123 / MySQLServer valid password")
     ap.add_argument("--usersfromdatabase", help="e.g. 'select user from follow_names;' Single Column ONLY")
-
+    # add argument thread_type
     args = ap.parse_args()
 
     return args

@@ -6,10 +6,11 @@ import pymysql.cursors
 import logging as logme
 
 
-def Conn(hostname, mysqldatabase, db_user, db_pwd):
+def Conn(hostname, mysqldatabase, db_user, db_pwd, print_msg=True):
     logme.debug(__name__ + ':Conn')
     if mysqldatabase:
-        print("[+] Inserting into MySqlDatabase: " + str(mysqldatabase))
+        if print_msg:
+            print("[+] Inserting into MySqlDatabase: " + str(mysqldatabase))
         conn = init(hostname, mysqldatabase, db_user, db_pwd)
         if isinstance(conn, str):
             print(str)
@@ -64,15 +65,17 @@ def follow(conn, Username, Followers, User):
         cursor = conn.cursor()
         entry = (User, date_time, Username,)
         query = 'INSERT INTO {} VALUES(%s,%s,%s)'.format(fTable(Followers))
-        print("dbmysql/def follow query= " + str(query))
+        # print("dbmysql/def follow query= " + str(query))
         cursor.execute(query, entry)
         conn.commit()
     except pymysql.IntegrityError:
         pass
 
 
-def user(conn, Username, Followers, User):
+def user(conn, Username, tbl_name, User):
     try:
+        if tbl_name is None:
+            tbl_name = "followers"
         date_time = str(datetime.now())
         cursor = conn.cursor()
         entry = (User.id,
@@ -93,7 +96,8 @@ def user(conn, Username, Followers, User):
                  User.avatar,
                  date_time,
                  Username,)
-        query = 'INSERT INTO {} VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'.format(uTable(Followers))
+        query = 'INSERT INTO {} VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'.format(uTable(tbl_name))
+        # print("dbmysql:user:query ", str(query))
         cursor.execute(query, entry)
         conn.commit()
 
@@ -134,10 +138,10 @@ def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _typ
     """
     try:
         con = pymysql.connect(hostname,
-                          db_user,
-                          db_pwd,
-                          mysql_database,
-                          charset='utf8mb4')
+                              db_user,
+                              db_pwd,
+                              mysql_database,
+                              charset='utf8mb4')
 
         with con:
             cur = con.cursor()
@@ -149,7 +153,7 @@ def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _typ
                 for row in rows:
                     un += "%20OR%20from%3A" + row[0]
                 return un[15:]
-            userlist=rows
+            userlist = rows
         return userlist
     except Exception as e:
         logme.critical(__name__ + ':dbmysql:' + str(e))
