@@ -1,17 +1,21 @@
 import sys
 from datetime import datetime
-
+import time
 import pymysql
 import pymysql.cursors
 import logging as logme
 
 
-def Conn(hostname, mysqldatabase, db_user, db_pwd, print_msg=True):
+def Conn(config, print_msg=True):
+    # hostname, mysqldatabase, db_user, db_pwd, print_msg = True):
     logme.debug(__name__ + ':Conn')
-    if mysqldatabase:
+    if config.mysqldatabase:
         if print_msg:
-            print("[+] Inserting into MySqlDatabase: " + str(mysqldatabase))
-        conn = init(hostname, mysqldatabase, db_user, db_pwd)
+            if config.Username is not None:
+                print(f"[+] Inserting into MySqlDatabase: {str(config.mysqldatabase)} for {config.Username}")
+            else:
+                print(f"[+] Inserting into MySqlDatabase: {str(config.mysqldatabase)}")
+        conn = init(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd)
         if isinstance(conn, str):
             print(str)
             sys.exit(1)
@@ -108,29 +112,49 @@ def user(conn, Username, tbl_name, User):
 def tweets(conn, Tweet, config):
     try:
         date_time = str(datetime.now())
+        time_ms = round(time.time() * 1000)
         cursor = conn.cursor()
-        entry = (Tweet.id,
-                 Tweet.user_id,
+
+        entry = (
+                 Tweet.id_str,
+                 Tweet.tweet,
+                 Tweet.conversation_id,
+                 Tweet.datetime,
                  Tweet.datestamp,
                  Tweet.timestamp,
                  Tweet.timezone,
-                 Tweet.location,
+                 Tweet.place,
+                 Tweet.replies_count,
+                 Tweet.likes_count,
+                 Tweet.retweets_count,
+                 Tweet.user_id,
+                 Tweet.user_id_str,
                  Tweet.username,
-                 Tweet.tweet,
-                 Tweet.replies,
-                 Tweet.likes,
-                 Tweet.retweets,
-                 ",".join(Tweet.hashtags),
+                 Tweet.name,
                  Tweet.link,
-                 Tweet.retweet,
-                 Tweet.user_rt,
                  ",".join(Tweet.mentions),
-                 date_time,
-                 config.search_name,)
-        cursor.execute('INSERT INTO tweets VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', entry)
+                 ",".join(Tweet.hashtags),
+                 ",".join(Tweet.cashtags),
+                 ",".join(Tweet.urls),
+                 ",".join(Tweet.photos),
+                 Tweet.quote_url,
+                 Tweet.video,
+                 Tweet.geo,
+                 Tweet.near,
+                 Tweet.source)
+        # cursor.execute('INSERT INTO tweets VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', entry)
+        insert_stmt = (
+            "INSERT IGNORE INTO tweets (id_str, tweet, conversation_id, created_at, date, time, timezone, place, "
+            "replies_count, likes_count, retweets_count, user_id, user_id_str, screen_name, name, link,"
+            "mentions, hashtags, cashtags, urls, photos, quote_url, video, geo, near, source)"
+            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        )
+
+        cursor.execute(insert_stmt, entry)
         conn.commit()
-    except pymysql.IntegrityError:
-        pass
+    except Exception as e:
+        print(f"entry= {entry}")
+        logme.critical(__name__ + ':dbmysql:' + str(e))
 
 
 def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _type):

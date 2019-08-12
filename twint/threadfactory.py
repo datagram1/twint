@@ -10,6 +10,10 @@ from bs4 import BeautifulSoup
 
 async def lookup_user(conn, config, connector, username, thread, q):
         try:
+            # placing conn here opens 1 connection per thread / doesn't appear to be quicker than one overall conn
+            # msg = False
+            # conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd, msg)
+
             config.Username = str(username)
             url = f"https://twitter.com/{username}?lang=en"
             response = await get.Request(url, connector)
@@ -44,16 +48,19 @@ async def process_queue(conn, connector, config, q, i):
 
 async def start(config):
     try:
+        if config.thread_qty is None:
+            config.thread_qty = 1
         q = queue.Queue()
         _type = "user_list"
         user_list = dbmysql.loadusersfromdatabase(config.hostname, config.DB_user, config.DB_pwd, config.mysqldatabase,
                                                   config.usersfromdatabase, _type)
         users_to_process = len(user_list)
         num_threads = min(int(config.thread_qty), users_to_process)
-        print(f"num threads= {num_threads}")
+        # print(f"num threads= {num_threads}")
         connector = get.get_connector(config)
         msg = False
         conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd, msg)
+        # conn = None
         for i in range(users_to_process):
             q.put_nowait(user_list[i])
 

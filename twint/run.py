@@ -25,7 +25,8 @@ class Twint:
         self.user_agent = ""
         self.config = config
         if config.hostname:
-            self.conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd)
+            # self.conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd)
+            self.conn = dbmysql.Conn(config)
         elif config.Database:
             self.conn = db.Conn(config.Database)
 

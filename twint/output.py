@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import format, get
+from . import format, get, dbmysql
 from .tweet import Tweet
 from .user import User
 from .storage import db, elasticsearch, write, panda
@@ -111,6 +111,10 @@ async def checkData(tweet, config, conn):
 
         if datecheck(tweet.datestamp, config):
             output = format.Tweet(config, tweet)
+
+            if config.mysqldatabase:
+                logme.debug(__name__ + ':checkData:mysqldatabase')
+                dbmysql.tweets(conn, tweet, config)
 
             if config.Database:
                 logme.debug(__name__ + ':checkData:Database')

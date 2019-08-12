@@ -136,7 +136,7 @@ def initialize(args):
     c.DB_user = args.dbuser
     c.DB_pwd = args.dbpwd
     c.usersfromdatabase = args.usersfromdatabase
-
+    c.thread_qty = args.threadqty
     return c
 
 
@@ -233,12 +233,12 @@ def options():
     ap.add_argument("--source", help="Filter the tweets for specific source client.")
     ap.add_argument("--members-list", help="Filter the tweets sent by users in a given list.")
     ap.add_argument("-fr", "--filter-retweets", help="Exclude retweets from the results.", action="store_true")
-    args = ap.parse_args()
     ap.add_argument("--mysqldatabase", help="e.g. twintdb  MySQLServer databasename")
     ap.add_argument("--hostname", help="e.g. 192.168.0.1 or localhost MySQLServer name/address")
     ap.add_argument("--dbuser", help="e.g. username or root / MySQLServer valid logon")
     ap.add_argument("--dbpwd", help="e.g. password or 123 / MySQLServer valid password")
     ap.add_argument("--usersfromdatabase", help="e.g. 'select user from follow_names;' Single Column ONLY")
+    ap.add_argument("--threadqty", help="e.g. 10  only enter an integer")
     # add argument thread_type
     args = ap.parse_args()
 
@@ -248,10 +248,12 @@ def options():
 def main(c):
     """ Main
     """
+    print("Debug OFF")
     if __debug__:
         args = c
         print("Debug ON")
     else:
+
         args = options()
         check(args)
         c = initialize(args)
