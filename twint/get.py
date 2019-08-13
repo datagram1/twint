@@ -148,35 +148,45 @@ def ForceNewTorIdentity(config):
         sys.stderr.write('If you want to rotate Tor ports automatically - enable Tor control port\n')
 
 async def Request(url, connector=None, params=[], headers=[]):
-    if connector:
-        logme.debug(__name__+':Request:Connector')
-        async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
+    try:
+        if connector:
+            logme.debug(__name__+':Request:Connector')
+            async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
+                return await Response(session, url, params)
+        logme.debug(__name__+':Request:notConnector')
+        async with aiohttp.ClientSession() as session:
             return await Response(session, url, params)
-    logme.debug(__name__+':Request:notConnector')
-    async with aiohttp.ClientSession() as session:
-        return await Response(session, url, params)
+    except RuntimeError as e:
+        logme.critical(__name__ + ':Request: ' + str(e))
 
 async def Response(session, url, params=[]):
-    logme.debug(__name__+':Response')
-    with timeout(60):
-        async with session.get(url, ssl=False, params=params, proxy=httpproxy) as response:
-            return await response.text()
+    try:
+        logme.debug(__name__+':Response')
+        with timeout(60):
+            async with session.get(url, ssl=False, params=params, proxy=httpproxy) as response:
+                return await response.text()
+    except RuntimeError as e:
+        logme.critical(__name__ + ':Response: ' + str(e))
 
 async def RandomUserAgent():
     logme.debug(__name__+':RandomUserAgent')
     try:
         ua = UserAgent(verify_ssl=False)
         return ua.random
-    except:
+    except RuntimeError as e:
+        logme.critical(__name__ + ':RandomUserAgent: ' + str(e))
         return random.choice(user_agent_list)
 
 async def Username(_id):
-    logme.debug(__name__+':Username')
-    url = f"https://twitter.com/intent/user?user_id={_id}&lang=en"
-    r = await Request(url)
-    soup = BeautifulSoup(r, "html.parser")
+    try:
+        logme.debug(__name__+':Username')
+        url = f"https://twitter.com/intent/user?user_id={_id}&lang=en"
+        r = await Request(url)
+        soup = BeautifulSoup(r, "html.parser")
 
-    return soup.find("a", "fn url alternate-context")["href"].replace("/", "")
+        return soup.find("a", "fn url alternate-context")["href"].replace("/", "")
+    except RuntimeError as e:
+        logme.critical(__name__ + ':RandomUserAgent: ' + str(e))
 
 async def Tweet(url, config, conn):
     logme.debug(__name__+':Tweet')

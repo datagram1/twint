@@ -62,6 +62,7 @@ class Config:
     Query = None
     Hide_output = False
     Near = ""
+    Time_check = 0
     Custom_query = ""
     Popular_tweets = False
     Skip_certs = False

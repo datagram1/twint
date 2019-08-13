@@ -9,30 +9,64 @@ from . import dbmysql,  user
 from bs4 import BeautifulSoup
 
 
+async def issues(response):
+
+    # This account has been suspended
+    # Sorry, that page doesn’t exist
+
+
+
+
+
+    return True
+
+
 async def lookup_user(conn, config, connector, username, thread, q):
         try:
             # placing conn here opens 1 connection per thread / doesn't appear to be quicker than one overall conn
             # msg = False
             # conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd, msg)
 
-            config.Username = str(username)
+            config.Username = username
             url = f"https://twitter.com/{username}?lang=en"
-
+            # test url to see if suspended
             response = await get.Request(url, connector)
-            # print("response", str(response))
-            u = user.User(BeautifulSoup(response, "html.parser"))
             date_time = str(datetime.now())
-            cursor = conn.cursor()
 
-            # entry = (u.id, u.name, u.username, u.bio, u.location, u.url, u.join_date, u.join_time, u.tweets,
-            # u.following,
-            #        u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, date_time, username,)
-            # replace into acts as an update routing on the same code block
-            # query = 'REPLACE INTO followers VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)' # followers
+            if response.find("This account has been suspended") !=-1:
+                print(f"https://twitter.com/{username} - account suspended")
+                try:
+                    # entry = (username, bit(1))
+                    insert_stmt = (f"REPLACE INTO users (id_str, user, suspended) VALUES (0,'{username}',b'1')")
+                    insert_stmt = (f"Update users  set suspended = b'1' where user='{username}' ")
+                    # print(insert_stmt)
+                    cursor = conn.cursor()
+                    cursor.execute(insert_stmt)
+                    conn.commit()
+                    q.task_done()
+                    return
+                except RuntimeError as e:
+                    logme.critical(__name__ + ':lookup_user: ' + str(e))
 
-            # fix date to mysql YYYY-MM-DD 00:00:00 format
-            # print(f"u.joineddate {u.join_date}")
-            joined_date = datetime.strptime(u.join_date, "%d %b %Y")
+            if response.find("Sorry, that page doesn’t exist") !=-1:
+                try:
+                    print(f"https://twitter.com/{username} - doesn't exist")
+                    # insert_stmt = (f"REPLACE INTO users (id_str, user, doesntexist) VALUES (0,'{username}',b'1')")
+                    insert_stmt = (f"Update users set doesntexist = b'1' where user='{username}' ")
+                    # entry = (username, b'1')
+                    # insert_stmt = ("REPLACE INTO users (user, doesntexist) VALUES (%s,%s)")
+                    # print(insert_stmt)
+                    cursor = conn.cursor()
+                    cursor.execute(insert_stmt)
+                    conn.commit()
+                    q.task_done()
+                    return
+                except RuntimeError as e:
+                    logme.critical(__name__ + ':lookup_user: ' + str(e))
+
+            u = user.User(BeautifulSoup(response, "html.parser"))
+
+            joined_date = datetime.strptime(u.join_date, "%d %b %Y")   # fix date to mysql YYYY-MM-DD 00:00:00 format
             # print("joined_date: ",  joined_date.strftime("%Y-%m-%d 00:00:00"))
 
             # for table users
@@ -43,7 +77,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
                 "followers, likes, media, private, verified, avatar, username) "
                 " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             )
-
+            cursor = conn.cursor()
             cursor.execute(insert_stmt, entry)
             # for followers
             # cursor.execute(query, entry)
@@ -52,17 +86,23 @@ async def lookup_user(conn, config, connector, username, thread, q):
             # print("lookup_user: in try block ", str(username))
             q.task_done()
 
-        except Exception as e:
-            logme.critical(__name__ + ':lookup_user:' + str(username) + '  ' + str(e))
+        except RuntimeError as e:
+            logme.critical(__name__ + ':lookup_user: ' + str(e))
 
 
 async def process_queue(conn, connector, config, q, i):
-    while not q.empty():
-        work = q.get()
-        logme.debug("process_queue (i=", str(i), ")", "\t", str(work[0]), "\t")
-        if str(work[0]) is not None:
-            await lookup_user(conn, config, connector, str(work[0]), i, q)
-        logme.debug(f"q-task-{i} done q-size= {q.qsize()}")
+    try:
+        while not q.empty():
+            work = q.get()
+            userwork = str(work[0])
+            if len(userwork) > 1:
+                logme.debug("process_queue (i=", str(i), ")", "\t", userwork, "\t")
+                await lookup_user(conn, config, connector, userwork, i, q)
+            logme.debug(f"q-task-{i} done q-size= {q.qsize()}")
+    except RuntimeError as e:
+            logme.critical(__name__ + ':process_queue: ' + str(e))
+    #except Exception as e:
+    #    logme.critical(__name__ + ':lookup_user:' + str(e))
 
 
 async def start(config):

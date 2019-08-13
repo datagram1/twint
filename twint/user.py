@@ -19,20 +19,36 @@ def inf(ur, _type):
     except Exception as e:
         print("Error: " + str(e))
 
-    if _type == "id":
-        ret = group["data-user-id"]
-    elif _type == "name":
-        ret = group["data-name"]
-    elif _type == "username":
-        ret = group["data-screen-name"]
-    elif _type == "private":
-        ret = group["data-protected"]
-        if ret == 'true':
-            ret = 1
-        else:
-            ret = 0
+    try:
 
-    return ret
+        if _type == "id":
+            try:
+                ret = group["data-user-id"]
+            except:
+                ret = 0
+        elif _type == "name":
+            try:
+                ret = group["data-name"]
+            except:
+                ret = 0
+        elif _type == "username":
+            try:
+                ret = group["data-screen-name"]
+            except:
+                ret = 0
+        elif _type == "private":
+            try:
+                ret = group["data-protected"]
+                if ret == 'true':
+                    ret = 1
+                else:
+                    ret = 0
+            except:
+                ret = 0
+
+        return ret
+    except RuntimeError as e:
+        logme.critical(__name__ + ':inf:  ' + str(e))
 
 
 def card(ur, _type):
@@ -58,18 +74,25 @@ def card(ur, _type):
 
 
 def join(ur):
-    logme.debug(__name__ + ':join')
-    jd = ur.find("span", "ProfileHeaderCard-joinDateText js-tooltip u-dir")["title"]
-    return jd.split(" - ")
+    try:
+        logme.debug(__name__ + ':join')
+        jd = ur.find("span", "ProfileHeaderCard-joinDateText js-tooltip u-dir")["title"]
+        return jd.split(" - ")
+    except TypeError:
+        pass
 
 
 def convertToInt(x):
-    logme.debug(__name__ + ':contertToInt')
-    multDict = {
-        "k": 1000,
-        "m": 1000000,
-        "b": 1000000000,
-    }
+    try:
+        logme.debug(__name__ + ':contertToInt')
+        multDict = {
+            "k": 1000,
+            "m": 1000000,
+            "b": 1000000000,
+        }
+    except:
+        pass
+
     try:
         if ',' in x:
             x = x.replace(',', '')
@@ -125,25 +148,31 @@ def verified(ur):
 
 
 def User(ur):
-    logme.debug(__name__ + ':User')
-    u = user()
-    for img in ur.findAll("img", "Emoji Emoji--forText"):
-        img.replaceWith(img["alt"])
-    u.id = inf(ur, "id")
-    u.name = inf(ur, "name")
-    u.username = inf(ur, "username")
-    u.bio = card(ur, "bio")
-    u.location = card(ur, "location")
-    u.url = card(ur, "url")
-    u.join_date = join(ur)[1]
-    u.join_time = join(ur)[0]
-    u.tweets = stat(ur, "tweets is-active")
-    u.following = stat(ur, "following")
-    u.followers = stat(ur, "followers")
-    u.likes = stat(ur, "favorites")
-    u.media_count = media(ur)
-    u.is_private = inf(ur, "private")
-    u.is_verified = verified(ur)
-    u.avatar = ur.find("img", "ProfileAvatar-image")["src"]
-    u.background_image = ur.find('div', {'class': 'ProfileCanopy-headerBg'}).find('img').get('src')
-    return u
+    try:
+        logme.debug(__name__ + ':User')
+        u = user()
+        for img in ur.findAll("img", "Emoji Emoji--forText"):
+            img.replaceWith(img["alt"])
+        u.id = inf(ur, "id")
+        u.name = inf(ur, "name")
+        u.username = inf(ur, "username")
+        u.bio = card(ur, "bio")
+        u.location = card(ur, "location")
+        u.url = card(ur, "url")
+        u.join_date = join(ur)[1]
+        u.join_time = join(ur)[0]
+        u.tweets = stat(ur, "tweets is-active")
+        u.following = stat(ur, "following")
+        u.followers = stat(ur, "followers")
+        u.likes = stat(ur, "favorites")
+        u.media_count = media(ur)
+        u.is_private = inf(ur, "private")
+        u.is_verified = verified(ur)
+        u.avatar = ur.find("img", "ProfileAvatar-image")["src"]
+        u.background_image = ur.find('div', {'class': 'ProfileCanopy-headerBg'}).find('img').get('src')
+        return u
+
+    except RuntimeError as e:
+        logme.critical(__name__ + ':User: ' + str(e))
+        u = None
+        return u
