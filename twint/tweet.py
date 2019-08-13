@@ -3,7 +3,6 @@ import json
 
 import logging as logme
 
-
 class tweet:
     """Define Tweet class
     """
@@ -12,11 +11,10 @@ class tweet:
     def __init__(self):
         pass
 
-
 def getMentions(tw):
     """Extract ment from tweet
     """
-    logme.debug(__name__ + ':getMentions')
+    logme.debug(__name__+':getMentions')
     try:
         mentions = tw["data-mentions"].split(" ")
     except:
@@ -24,11 +22,10 @@ def getMentions(tw):
 
     return mentions
 
-
 def getQuoteURL(tw):
     """Extract quote from tweet
     """
-    logme.debug(__name__ + ':getQuoteURL')
+    logme.debug(__name__+':getQuoteURL')
     base_twitter = "https://twitter.com"
     quote_url = ""
     try:
@@ -38,7 +35,6 @@ def getQuoteURL(tw):
         quote_url = ""
 
     return quote_url
-
 
 def getText(tw):
     """Replace some text
@@ -63,10 +59,13 @@ def getStat(tw, _type):
 def getRetweet(profile, username, user):
     """Get Retweet
     """
-    logme.debug(__name__ + ':getRetweet')
-    if profile and username.lower() != user.lower():
-        return 1
-
+    logme.debug(__name__+':getRetweet')
+    _rt_object = tw.find('span', 'js-retweet-text')
+    if _rt_object:
+        _rt_id = _rt_object.find('a')['data-user-id']
+        _rt_username = _rt_object.find('a')['href'][1:]
+        return  _rt_id, _rt_username
+    return '', ''
 
 def Tweet(tw, config):
     """Create Tweet object
@@ -77,36 +76,33 @@ def Tweet(tw, config):
     t.id_str = tw["data-item-id"]
     t.conversation_id = tw["data-conversation-id"]
     t.datetime = int(tw.find("span", "_timestamp")["data-time-ms"])
-    t.datestamp = strftime("%Y-%m-%d", localtime(t.datetime / 1000.0))
-    t.timestamp = strftime("%H:%M:%S", localtime(t.datetime / 1000.0))
+    t.datestamp = strftime("%Y-%m-%d", localtime(t.datetime/1000.0))
+    t.timestamp = strftime("%H:%M:%S", localtime(t.datetime/1000.0))
     t.user_id = int(tw["data-user-id"])
     t.user_id_str = tw["data-user-id"]
     t.username = tw["data-screen-name"]
     t.name = tw["data-name"]
-    t.place = tw.find("a", "js-geo-pivot-link").text.strip() if tw.find("a", "js-geo-pivot-link") else ""
+    t.place = tw.find("a","js-geo-pivot-link").text.strip() if tw.find("a","js-geo-pivot-link") else ""
     t.timezone = strftime("%Z", localtime())
     for img in tw.findAll("img", "Emoji Emoji--forText"):
         img.replaceWith(img["alt"])
     t.mentions = getMentions(tw)
-    t.urls = [link.attrs["data-expanded-url"] for link in tw.find_all('a', {'class': 'twitter-timeline-link'}) if
-              link.has_attr("data-expanded-url")]
+    t.urls = [link.attrs["data-expanded-url"] for link in tw.find_all('a',{'class':'twitter-timeline-link'}) if link.has_attr("data-expanded-url")]
     t.photos = [photo_node.attrs['data-image-url'] for photo_node in tw.find_all("div", "AdaptiveMedia-photoContainer")]
     t.video = 1 if tw.find_all("div", "AdaptiveMedia-video") != [] else 0
     t.tweet = getText(tw)
-    t.hashtags = [hashtag.text for hashtag in tw.find_all("a", "twitter-hashtag")]
+    t.hashtags = [hashtag.text for hashtag in tw.find_all("a","twitter-hashtag")]
     t.cashtags = [cashtag.text for cashtag in tw.find_all("a", "twitter-cashtag")]
     t.replies_count = getStat(tw, "reply")
     t.retweets_count = getStat(tw, "retweet")
     t.likes_count = getStat(tw, "favorite")
     t.link = f"https://twitter.com/{t.username}/status/{t.id}"
-    t.retweet = getRetweet(config.Profile, t.username, config.Username)
-    if t.retweet or config.Native_retweets:
-        t.retweet = True
-        t.user_rt_id = config.User_id
-    else:
-        t.user_rt_id = 0
+    t.user_rt_id, t.user_rt = getRetweet(tw)
+    t.retweet = True if t.user_rt else False
+    t.retweet_id = tw['data-retweet-id'] if t.user_rt else ''
     t.quote_url = getQuoteURL(tw)
     t.near = config.Near if config.Near else ""
     t.geo = config.Geo if config.Geo else ""
     t.source = config.Source if config.Source else ""
+    t.reply_to = [{'user_id': t['id_str'], 'username': t['screen_name']} for t in json.loads(tw["data-reply-to-users-json"])]
     return t

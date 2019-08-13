@@ -1,5 +1,6 @@
 # threadfactory
 # multi_threaded capabilities for twint
+import datetime
 from datetime import datetime
 import queue, asyncio, bs4
 import logging as logme
@@ -16,18 +17,36 @@ async def lookup_user(conn, config, connector, username, thread, q):
 
             config.Username = str(username)
             url = f"https://twitter.com/{username}?lang=en"
+
             response = await get.Request(url, connector)
             # print("response", str(response))
             u = user.User(BeautifulSoup(response, "html.parser"))
             date_time = str(datetime.now())
             cursor = conn.cursor()
-            entry = (u.id, u.name, u.username, u.bio, u.location, u.url, u.join_date, u.join_time, u.tweets, u.following,
-                     u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, date_time, username,)
+
+            # entry = (u.id, u.name, u.username, u.bio, u.location, u.url, u.join_date, u.join_time, u.tweets,
+            # u.following,
+            #        u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, date_time, username,)
             # replace into acts as an update routing on the same code block
-            query = 'REPLACE INTO followers VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'  # followers
-            # query = 'REPLACE INTO users VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'  #user to do
-            # print("dbmysql:user:query drops ")
-            cursor.execute(query, entry)
+            # query = 'REPLACE INTO followers VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)' # followers
+
+            # fix date to mysql YYYY-MM-DD 00:00:00 format
+            # print(f"u.joineddate {u.join_date}")
+            joined_date = datetime.strptime(u.join_date, "%d %b %Y")
+            # print("joined_date: ",  joined_date.strftime("%Y-%m-%d 00:00:00"))
+
+            # for table users
+            entry = (u.id, u.name, u.username, u.bio, u.location, u.url, joined_date, u.tweets,
+                    u.following, u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, username)
+            insert_stmt = (
+                "REPLACE INTO users (id_str, name, user, bio, location, url, joined, tweets, following,"
+                "followers, likes, media, private, verified, avatar, username) "
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            )
+
+            cursor.execute(insert_stmt, entry)
+            # for followers
+            # cursor.execute(query, entry)
             conn.commit()
             print("lookup_user Thread=", thread, "\t", "\t", "Username: ", username, "\t")
             # print("lookup_user: in try block ", str(username))
@@ -59,7 +78,7 @@ async def start(config):
         # print(f"num threads= {num_threads}")
         connector = get.get_connector(config)
         msg = False
-        conn = dbmysql.Conn(config.hostname, config.mysqldatabase, config.DB_user, config.DB_pwd, msg)
+        conn = dbmysql.Conn(config, msg)
         # conn = None
         for i in range(users_to_process):
             q.put_nowait(user_list[i])

@@ -22,13 +22,15 @@ CREATE TABLE `followers` (
   PRIMARY KEY (`follower`(255),`username`(255),`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `followers_names` (
+
+CREATE TABLE `following_names` (
   `user` varchar(50) NOT NULL,
   `date_update` datetime NOT NULL,
-  `follower` varchar(50) NOT NULL,
+  `follows` varchar(50) NOT NULL,
   PRIMARY KEY (`user`),
-  KEY `follower` (`follower`) USING BTREE
+  KEY `follows_idx` (`follows`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `following` (
   `id` bigint(30) NOT NULL,
@@ -61,26 +63,38 @@ CREATE TABLE `following_names` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `tweets` (
-  `id` bigint(30) NOT NULL,
-  `user_id` bigint(30) DEFAULT NULL,
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  `timezone` tinytext NOT NULL,
-  `location` tinytext NOT NULL,
-  `user` text NOT NULL,
-  `tweet` longtext NOT NULL,
-  `replies` int(11) DEFAULT NULL,
-  `likes` int(11) DEFAULT NULL,
-  `retweets` int(11) DEFAULT NULL,
-  `hashtags` longtext,
-  `link` longtext,
-  `retweet` int(1) DEFAULT NULL,
-  `user_rt` text,
-  `mentions` longtext,
-  `date_update` datetime NOT NULL,
-  `search_name` mediumtext NOT NULL COMMENT 'user can use this field to know from which search the info comes. max 255 chars. if the user do not especify, it must be set to "-" ',
-  PRIMARY KEY (`id`,`search_name`(255))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `id_str` varchar(30) DEFAULT NULL,
+  `tweet` text,
+  `conversation_id` text,
+  `created_at` varchar(40) DEFAULT NULL,
+  `date` text,
+  `time` text,
+  `timezone` text,
+  `place` text,
+  `replies_count` int(11) DEFAULT NULL,
+  `likes_count` int(11) DEFAULT NULL,
+  `retweets_count` int(11) DEFAULT NULL,
+  `user_id` varchar(30) DEFAULT NULL,
+  `user_id_str` text,
+  `screen_name` text NOT NULL,
+  `name` text,
+  `link` text,
+  `mentions` text,
+  `hashtags` text,
+  `cashtags` text,
+  `urls` text,
+  `photos` text,
+  `quote_url` text,
+  `video` int(11) DEFAULT NULL,
+  `geo` text,
+  `near` text,
+  `source` text,
+  `time_update` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1620 DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
