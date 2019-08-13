@@ -125,6 +125,8 @@ async def start(config):
 
         for i in range(num_threads):
             task = asyncio.create_task(process_queue(conn, connector, config, q, i))
+            # TODO more parallel processes start here
+        # TODO add progress bar call back to here
         done, pending = await asyncio.wait({task})
 
     except Exception as e:
