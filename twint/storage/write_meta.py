@@ -1,5 +1,4 @@
 def tweetData(t):
-def tweetData(t):
     data = {
             "id": int(t.id),
             "conversation_id": t.conversation_id,
