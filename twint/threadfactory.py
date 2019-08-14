@@ -4,6 +4,8 @@ import datetime
 from datetime import datetime
 import queue, asyncio, bs4
 import logging as logme
+from time import gmtime, strftime
+
 from . import get,dbmysql
 from . import dbmysql,  user
 from bs4 import BeautifulSoup
@@ -26,7 +28,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
             # placing conn here opens 1 connection per thread / doesn't appear to be quicker than one overall conn
             msg = False
             conn = dbmysql.Conn(config, msg)
-
+            timeupdate = str(datetime.now())
             config.Username = username
             url = f"https://twitter.com/{username}?lang=en"
             # test url to see if suspended
@@ -39,7 +41,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
                     dbmysql.non_query(config, f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     # insert_stmt0 = (f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     insert_stmt = (f"Update users  set suspended = b'1' where user='{username}' ")
-                    # print(insert_stmt0)
+                    # print(insert_stmt)
                     cursor = conn.cursor()
                     # cursor.execute(insert_stmt0)
                     cursor.execute(insert_stmt)
@@ -55,7 +57,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
                     dbmysql.non_query(config, f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     # insert_stmt0 = (f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     insert_stmt = (f"Update users set doesntexist = b'1' where user='{username}' ")
-                    # print(f"doesn't exist: {insert_stmt0}")
+                    # print(f"doesn't exist: {insert_stmt}")
                     cursor = conn.cursor()
                     # cursor.execute(insert_stmt0)
                     cursor.execute(insert_stmt)
@@ -67,18 +69,22 @@ async def lookup_user(conn, config, connector, username, thread, q):
                     logme.critical(__name__ + ':lookup_user: ' + str(e))
             u = user.User(BeautifulSoup(response, "html.parser"))
             joined_date = datetime.strptime(u.join_date, "%d %b %Y")   # fix date to mysql YYYY-MM-DD 00:00:00 format
+            # print(f"***** u_join date: {joined_date}")
             # for table users
             entry = (u.id, u.name, u.username, u.bio, u.location, u.url, joined_date, u.tweets,
-                    u.following, u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, username)
+                    u.following, u.followers, u.likes, u.media_count, u.is_private, u.is_verified, u.avatar, username,
+                     timeupdate)
             insert_stmt = (
                 "REPLACE INTO users (id_str, name, user, bio, location, url, joined, tweets, following,"
-                "followers, likes, media, private, verified, avatar, username) "
-                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                "followers, likes, media, private, verified, avatar, username, time_update) "
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             )
+            # print(f"sql: {insert_stmt} {entry}")
             cursor = conn.cursor()
             cursor.execute(insert_stmt, entry)
             conn.commit()
             print("lookup_user Thread=", thread, "\t", "\t", "Username: ", username, "\t")
+
             q.task_done()
 
         except RuntimeError as e:
@@ -95,7 +101,9 @@ async def process_queue(conn, connector, config, q, i):
             if len(userwork) > 0:
                 logme.debug("process_queue (i=", str(i), ")", "\t", userwork, "\t")
                 await lookup_user(conn, config, connector, userwork, i, q)
-
+                # loop = loop.call_soon_threadsafe(callback, *args)
+                # future = asyncio.run_coroutine_threadsafe(lookup_user(conn, config, connector, userwork, i, q), loop)
+                # result = future.result()
             logme.debug(f"q-task-{i} done q-size= {q.qsize()}")
     except RuntimeError as e:
             logme.critical(__name__ + ':process_queue: ' + str(e))
