@@ -1,4 +1,5 @@
 def tweetData(t):
+def tweetData(t):
     data = {
             "id": int(t.id),
             "conversation_id": t.conversation_id,
@@ -23,10 +24,14 @@ def tweetData(t):
             "retweet": t.retweet,
             "quote_url": t.quote_url,
             "video": t.video,
-            "user_rt_id": t.user_rt_id,
             "near": t.near,
             "geo": t.geo,
-            "source": t.source
+            "source": t.source,
+            "user_rt_id": t.user_rt_id,
+            "user_rt": t.user_rt,
+            "retweet_id": t.retweet_id,
+            "reply_to": t.reply_to,
+            "retweet_date": t.retweet_date
             }
     return data
 
@@ -55,10 +60,14 @@ def tweetFieldnames():
             "retweet",
             "quote_url",
             "video",
-            "user_rt_id",
             "near",
             "geo",
-            "source"
+            "source",
+            "user_rt_id",
+            "user_rt",
+            "retweet_id",
+            "reply_to",
+            "retweet_date"
             ]
     return fieldnames
 
