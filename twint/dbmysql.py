@@ -181,3 +181,17 @@ def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _typ
         return userlist
     except Exception as e:
         logme.critical(__name__ + ':dbmysql:' + str(e))
+
+
+def non_query(config, query):
+    try:
+        con = pymysql.connect(config.hostname,
+                              config.DB_user,
+                              config.DB_pwd,
+                              config.mysqldatabase,
+                              charset='utf8mb4')
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+    except Exception as e:
+        logme.critical(__name__ + ':dbmysql:' + str(e))

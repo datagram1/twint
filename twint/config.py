@@ -76,7 +76,7 @@ class Config:
     Filter_retweets = False
     mysqldatabase = ""
     hostname = ""
-    dbuser = ""
-    dbpwd = ""
+    DB_user = ""
+    DB_pwd = ""
     usersfromdatabase = ""
     thread_qty = 1

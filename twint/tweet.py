@@ -29,7 +29,7 @@ def getQuoteURL(tw):
     base_twitter = "https://twitter.com"
     quote_url = ""
     try:
-        quote = tw.find("div", "QuoteTweet-innerContainer")
+        quote = tw.find("div","QuoteTweet-innerContainer")
         quote_url = base_twitter + quote.get("href")
     except:
         quote_url = ""
@@ -39,7 +39,7 @@ def getQuoteURL(tw):
 def getText(tw):
     """Replace some text
     """
-    logme.debug(__name__ + ':getText')
+    logme.debug(__name__+':getText')
     text = tw.find("p", "tweet-text").text
     text = text.replace("\n", " ")
     text = text.replace("http", " http")
@@ -47,16 +47,14 @@ def getText(tw):
 
     return text
 
-
 def getStat(tw, _type):
     """Get stats about Tweet
     """
-    logme.debug(__name__ + ':getStat')
+    logme.debug(__name__+':getStat')
     st = f"ProfileTweet-action--{_type} u-hiddenVisually"
     return tw.find("span", st).find("span")["data-tweet-stat-count"]
 
-
-def getRetweet(profile, username, user):
+def getRetweet(tw):
     """Get Retweet
     """
     logme.debug(__name__+':getRetweet')
@@ -70,7 +68,7 @@ def getRetweet(profile, username, user):
 def Tweet(tw, config):
     """Create Tweet object
     """
-    logme.debug(__name__ + ':Tweet')
+    logme.debug(__name__+':Tweet')
     t = tweet()
     t.id = int(tw["data-item-id"])
     t.id_str = tw["data-item-id"]
@@ -100,6 +98,7 @@ def Tweet(tw, config):
     t.user_rt_id, t.user_rt = getRetweet(tw)
     t.retweet = True if t.user_rt else False
     t.retweet_id = tw['data-retweet-id'] if t.user_rt else ''
+    t.retweet_date = datetime.fromtimestamp(((t.id >> 22) + 1288834974657)/1000.0).strftime("%Y-%m-%d %H:%M:%S") if t.user_rt else ''
     t.quote_url = getQuoteURL(tw)
     t.near = config.Near if config.Near else ""
     t.geo = config.Geo if config.Geo else ""
