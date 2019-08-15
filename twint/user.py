@@ -160,7 +160,6 @@ def User(ur):
         u.location = card(ur, "location")
         u.url = card(ur, "url")
         u.join_date = join(ur)[1]
-
         u.join_time = join(ur)[0]
         u.tweets = stat(ur, "tweets is-active")
         u.following = stat(ur, "following")

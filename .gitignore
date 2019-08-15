@@ -116,3 +116,5 @@ test.py
 twint/storage/.DS_Store
 twint/.DS_Store
 .DS_Store
+/updateme.py
+/newusersfromtweets.py

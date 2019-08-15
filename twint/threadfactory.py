@@ -11,16 +11,9 @@ from . import dbmysql,  user
 from bs4 import BeautifulSoup
 from tqdm import tqdm, trange
 
-async def issues(response):
 
-    # This account has been suspended
-    # Sorry, that page doesn’t exist
-
-
-
-
-
-    return True
+def safe_print(content):
+    print(f"{content}")
 
 
 async def lookup_user(conn, config, connector, username, thread, q):
@@ -36,7 +29,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
             date_time = str(datetime.now())
 
             if response.find("This account has been suspended") !=-1:
-                print(f"https://twitter.com/{username} - account suspended")
+                safe_print(f"https://twitter.com/{username} - account suspended")
                 try:
                     dbmysql.non_query(config, f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     # insert_stmt0 = (f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
@@ -53,7 +46,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
 
             if response.find("Sorry, that page doesn’t exist") !=-1:
                 try:
-                    print(f"https://twitter.com/{username} - doesn't exist")
+                    safe_print(f"https://twitter.com/{username} - doesn't exist")
                     dbmysql.non_query(config, f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     # insert_stmt0 = (f"insert ignore into users (id_str, user) VALUES (0, '{username}')")
                     insert_stmt = (f"Update users set doesntexist = b'1' where user='{username}' ")
@@ -83,7 +76,7 @@ async def lookup_user(conn, config, connector, username, thread, q):
             cursor = conn.cursor()
             cursor.execute(insert_stmt, entry)
             conn.commit()
-            print("lookup_user Thread=", thread, "\t", "\t", "Username: ", username, "\t")
+            safe_print(f"lookup_user Thread= {thread}\t\t Username: {username}")
 
             q.task_done()
 
@@ -121,6 +114,9 @@ async def start(config):
                                                   config.usersfromdatabase, _type)
         users_to_process = len(user_list)
         num_threads = min(int(config.thread_qty), users_to_process)
+        if not users_to_process:
+            safe_print("No Users to process Exiting...")
+            return
         # print(f"num threads= {num_threads}")
         connector = get.get_connector(config)
         # msg = False
