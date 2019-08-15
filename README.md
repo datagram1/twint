@@ -1,4 +1,6 @@
-# TWINT - Twitter Intelligence Tool
+# TWINTMYSQL - Twitter Intelligence Tool with MYSQL Database Support
+This is a branch from twintproject at https://github.com/twintproject/twint
+
 
 
 >No authentication. No API. No limits.
