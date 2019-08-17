@@ -118,3 +118,6 @@ twint/.DS_Store
 .DS_Store
 /updateme.py
 /newusersfromtweets.py
+/scheduler.py
+/test2.py
+/test-multiprocessing.py

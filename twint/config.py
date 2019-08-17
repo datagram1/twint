@@ -80,3 +80,4 @@ class Config:
     DB_pwd = ""
     usersfromdatabase = ""
     thread_qty = 1
+    path = ''

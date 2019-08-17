@@ -157,33 +157,71 @@ def tweets(conn, Tweet, config):
         logme.critical(__name__ + ':dbmysql:' + str(e))
 
 
-def loadusersfromdatabase(hostname, db_user, db_pwd, mysql_database, query, _type):
+def loadusersfromdatabase(config, conn=None, _type=None):
     """ usersfromdatabase option
     """
     try:
-        con = pymysql.connect(hostname,
-                              db_user,
-                              db_pwd,
-                              mysql_database,
-                              charset='utf8mb4')
+        if conn:
+            con = pymysql.connect(config.hostname,
+                                  config.DB_user,
+                                  config.DB_pwd,
+                                  config.mysqldatabase,
+                                  charset='utf8mb4')
 
-        with con:
+            with con:
+                cur = con.cursor()
+                cur.execute(config.usersfromdatabase)
+                rows = cur.fetchall()
+
+                if _type == "search":
+                    un = ""
+                    for row in rows:
+                        un += "%20OR%20from%3A" + row[0]
+                    return un[15:]
+                userlist = rows
+        if not conn:
             cur = con.cursor()
-            cur.execute(query)
+            cur.execute(config.usersfromdatabase)
             rows = cur.fetchall()
-
-            if _type == "search":
-                un = ""
-                for row in rows:
-                    un += "%20OR%20from%3A" + row[0]
-                return un[15:]
-            userlist = rows
         return userlist
     except Exception as e:
         logme.critical(__name__ + ':dbmysql:' + str(e))
 
 
-def non_query(config, query):
+def query_rows(config, conn=None):
+
+    # config.Query = "select photos from tweets where photos >'' limit 3"
+    try:
+        if conn:
+            con = pymysql.connect(config.hostname,
+                                  config.DB_user,
+                                  config.DB_pwd,
+                                  config.mysqldatabase,
+                                  charset='utf8mb4')
+
+            with con:
+                cur = con.cursor()
+                cur.execute(config.Query)
+                rows = cur.fetchall()
+                returnlist = rows
+        if not conn:
+            cur = con.cursor()
+            cur.execute(config.Query)
+            rows = cur.fetchall()
+            returnlist = rows
+
+        return returnlist
+    except Exception as e:
+        logme.critical(__name__ + ':queryrows:' + str(e))
+
+
+def non_query(config, query=None):
+    try:
+        if not query:
+            if config.Query:
+                query = config.Query
+    except:
+        raise
     try:
         con = pymysql.connect(config.hostname,
                               config.DB_user,

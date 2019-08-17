@@ -171,7 +171,7 @@ async def Response(session, url, params=[]):
 async def RandomUserAgent():
     logme.debug(__name__+':RandomUserAgent')
     try:
-        ua = UserAgent(verify_ssl=False)
+        ua = UserAgent()
         return ua.random
     except RuntimeError as e:
         logme.critical(__name__ + ':RandomUserAgent: ' + str(e))
