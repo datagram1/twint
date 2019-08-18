@@ -116,32 +116,32 @@ def tweets(conn, Tweet, config):
         cursor = conn.cursor()
 
         entry = (
-                 Tweet.id_str,
-                 Tweet.tweet,
-                 Tweet.conversation_id,
-                 Tweet.datetime,
-                 Tweet.datestamp,
-                 Tweet.timestamp,
-                 Tweet.timezone,
-                 Tweet.place,
-                 Tweet.replies_count,
-                 Tweet.likes_count,
-                 Tweet.retweets_count,
-                 Tweet.user_id,
-                 Tweet.user_id_str,
-                 Tweet.username,
-                 Tweet.name,
-                 Tweet.link,
-                 ",".join(Tweet.mentions),
-                 ",".join(Tweet.hashtags),
-                 ",".join(Tweet.cashtags),
-                 ",".join(Tweet.urls),
-                 ",".join(Tweet.photos),
-                 Tweet.quote_url,
-                 Tweet.video,
-                 Tweet.geo,
-                 Tweet.near,
-                 Tweet.source)
+            Tweet.id_str,
+            Tweet.tweet,
+            Tweet.conversation_id,
+            Tweet.datetime,
+            Tweet.datestamp,
+            Tweet.timestamp,
+            Tweet.timezone,
+            Tweet.place,
+            Tweet.replies_count,
+            Tweet.likes_count,
+            Tweet.retweets_count,
+            Tweet.user_id,
+            Tweet.user_id_str,
+            Tweet.username,
+            Tweet.name,
+            Tweet.link,
+            ",".join(Tweet.mentions),
+            ",".join(Tweet.hashtags),
+            ",".join(Tweet.cashtags),
+            ",".join(Tweet.urls),
+            ",".join(Tweet.photos),
+            Tweet.quote_url,
+            Tweet.video,
+            Tweet.geo,
+            Tweet.near,
+            Tweet.source)
         # cursor.execute('INSERT INTO tweets VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', entry)
         insert_stmt = (
             "INSERT IGNORE INTO tweets (id_str, tweet, conversation_id, created_at, date, time, timezone, place, "
@@ -189,10 +189,9 @@ def loadusersfromdatabase(config, conn=None, _type=None):
 
 
 def query_rows(config, conn=None):
-
     # config.Query = "select photos from tweets where photos >'' limit 3"
     try:
-        if conn:
+        if conn is None:
             con = pymysql.connect(config.hostname,
                                   config.DB_user,
                                   config.DB_pwd,
@@ -204,8 +203,8 @@ def query_rows(config, conn=None):
                 cur.execute(config.Query)
                 rows = cur.fetchall()
                 returnlist = rows
-        if not conn:
-            cur = con.cursor()
+        else:
+            cur = connn.cursor()
             cur.execute(config.Query)
             rows = cur.fetchall()
             returnlist = rows

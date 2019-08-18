@@ -1,3 +1,7 @@
+tqdm
+PySide2
+numpy
+PIL
 requests
 pymysql
 aiohttp
