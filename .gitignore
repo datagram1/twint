@@ -121,3 +121,4 @@ twint/.DS_Store
 /scheduler.py
 /test2.py
 /test-multiprocessing.py
+/twint/temp/
